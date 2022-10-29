@@ -1,5 +1,5 @@
 ## CMake Installation
-> After than you install repository, open with vscode.
+> After than install repository, open with vscode.
 > Than open terminal and type this commands.
 
 ```
