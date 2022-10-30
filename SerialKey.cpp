@@ -22,6 +22,8 @@ auto SerialKeyGen::get_random_string(size_t length)->std::string
     // create a distribution that maps to the random characters
     tmp_s.reserve(length);
 
+    srand(time(NULL));
+
     for (int i = 0; i < length; ++i)
     {
         tmp_s += alphanum[rand() % (sizeof(alphanum) - 1)];
