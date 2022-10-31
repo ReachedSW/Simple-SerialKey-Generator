@@ -4,9 +4,8 @@
 https://stackoverflow.com/questions/440133/how-do-i-create-a-random-alpha-numeric-string-in-c
 (https://stackoverflow.com/users/23501/ates-goral)
 */
-auto SerialKeyGen::get_random_string(size_t length)->std::string
+auto SerialKeyGen::get_random_string(size_t length) -> std::string
 {
-
     // dynamically create a string of random characters
     static constexpr char alphanum[] = 
     {
@@ -18,15 +17,22 @@ auto SerialKeyGen::get_random_string(size_t length)->std::string
     // create a random number generator
     std::string tmp_s;
 
-
     // create a distribution that maps to the random characters
     tmp_s.reserve(length);
 
-    srand(time(NULL));
+    // Special thanks for : https://github.com/aeTunga
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_int_distribution<> dist(0, std::ssize(alphanum)-1);
 
+    char test;
     for (int i = 0; i < length; ++i)
     {
-        tmp_s += alphanum[rand() % (sizeof(alphanum) - 1)];
+        test = alphanum[dist(mt)];
+#ifdef _DBG_
+        std::cout << "Debug ( test ): " << test << std::endl;
+#endif
+        tmp_s += test;
     }
 
     return tmp_s;
@@ -37,31 +43,41 @@ auto SerialKeyGen::get_random_string(size_t length)->std::string
 auto SerialKeyGen::GenerateKey() -> std::string 
 {
     // first of all we need to find a key to hash, but it must be unique
-    std::random_device rd;
-    std::mt19937 mt(rd());
-    std::uniform_real_distribution<ld> dist(1.0, 10000000000.0);
 
-    ld nKey = dist(mt);
+
+    // This is for unique sized keys
+
+   /* std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_int_distribution<> dist(0, 16);
+
+    int nKey = dist(mt);*/
+
+
+    // Special thanks for : https://github.com/aeTunga
+
+
+    // This is for static sized keys 
+    int iKey = 16;
+
 #ifdef _DBG_
-    std::cout << "Debug ( nKey ) : " << nKey << std::endl;
+    std::cout << "Debug ( nKey ) : " << iKey << std::endl;
 #endif
    
     // now we need to hash the key
-    std::string sKey = std::to_string(nKey);
-#ifdef _DBG_
-    std::cout << "Debug ( sKey ) : " << sKey << std::endl;
-#endif
-
-    std::string sHashedKey = get_random_string(sKey.length());
+    std::string sHashedKey = get_random_string(iKey);
 #ifdef _DBG_
     std::cout << "Debug ( sHashedKey ) : " << sHashedKey << std::endl;
 #endif
 
-    std::transform(sHashedKey.begin(), sHashedKey.end(), sHashedKey.begin(), ::toupper);
 
+    //std::transform(sHashedKey.begin(), sHashedKey.end(), sHashedKey.begin(), ::toupper); // Written for make variables between upper and lower cases.
+
+
+  
     std::string sHashed = "";
 
-    BYTE bCounter = 0, bLineController = 0;
+    BYTE bCounter = 0;
     for (BYTE i = 0; i < sHashedKey.length()+1; ++i)
     {
         if (bCounter < 4)
@@ -71,12 +87,11 @@ auto SerialKeyGen::GenerateKey() -> std::string
         }
         else
         {
-            if (bLineController < 3)
+            if (i == sHashedKey.length())
             {
                 sHashed += "-";
                 bCounter = 0;
                 i--;
-                bLineController++;
             }
         }
     }
@@ -85,7 +100,7 @@ auto SerialKeyGen::GenerateKey() -> std::string
     std::cout << "Debug ( sHashed ) : " << sHashed << std::endl;
 #endif
 
-    m_map_Keys.emplace(this, nKey);
+    m_map_Keys.emplace(this, iKey);
 
     // now we need to return the key
     return sHashed;
