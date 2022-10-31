@@ -2,7 +2,7 @@
 
 /*
 https://stackoverflow.com/questions/440133/how-do-i-create-a-random-alpha-numeric-string-in-c
-(https://stackoverflow.com/users/23501/ates-goral)
+(https://stackoverflow.com/users/23501/ates-goral).
 */
 auto SerialKeyGen::get_random_string(size_t length) -> std::string
 {
